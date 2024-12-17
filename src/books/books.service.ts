@@ -16,18 +16,25 @@ export class BooksService {
     });
   }
 
-  public async create(BookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>): Promise<Book> {
+  public create(
+    bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Book> {
+    const { authorId, ...otherData } = bookData;
     try {
-      return await this.prismaService.book.create({
-        data: BookData,
+      return this.prismaService.book.create({
+        data: {
+          ...otherData,
+          author: {
+            connect: { id: authorId },
+          },
+        },
       });
     } catch (error) {
       if (error.code === 'P2002')
         throw new ConflictException('Title is already taken');
       throw error;
     }
-  }
-
+}
   public async updateById(
     id: Book['id'],
     BookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>,

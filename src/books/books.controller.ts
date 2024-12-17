@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDTO } from './dtos/create-book.dto';
 import { UpdateBookDTO } from './dtos/update-book.dto';
@@ -19,36 +19,9 @@ export class BooksController {
     return book;
   }
 
-  // @Post('/')
-  // create(@Body() bookData: CreateBookDTO) {
-  //   return this.booksService.create(bookData);
-  // }
-
   @Post('/')
-  async create(@Body() bookData: CreateBookDTO) {
-    const { title, price, rating, authorId } = bookData;
-  
-    // Sprawdź, czy podane `authorId` istnieje
-    const authorExists = await this.booksService.getById(authorId);
-  
-    if (!authorExists) {
-      throw new BadRequestException('Author with the given id does not exist');
-    }
-  
-    try {
-      return await this.booksService.create({
-        title,
-        price,
-        rating,
-        authorId,
-      });
-    } catch (error) {
-      if (error.code === 'P2002') {
-        // Obsłuż unikalne naruszenie ograniczenia (np. tytuł zajęty)
-        throw new ConflictException('Title is already taken');
-      }
-      throw error;
-    }
+  create(@Body() bookData: CreateBookDTO) {
+    return this.booksService.create(bookData);
   }
 
   @Put('/:id')
