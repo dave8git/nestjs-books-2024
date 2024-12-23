@@ -12,6 +12,6 @@ async function bootstrap() {
   await app.listen(configService.get('port'));
   await app.enableShutdownHooks();
   app.use(cookieParser());
-  await app.listen(3000);
+  //await app.listen(3000);
 }
 bootstrap();
