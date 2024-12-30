@@ -9,7 +9,7 @@ import { UsersService } from 'src/users/users.service';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private configService: ConfigService,
-    // private usersService: UsersService
+    private usersService: UsersService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -27,11 +27,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  // async validate(payload: any) {
-  //   const user = await this.usersService.getById(payload.sub);
-  //   return user;
-  // }
   async validate(payload: any) {
-    return { userId: payload.sub, email: payload.email };
+    const user = await this.usersService.getById(payload.sub);
+    return user;
   }
+  // async validate(payload: any) {
+  //   return { userId: payload.sub, email: payload.email };
+  // }
 }

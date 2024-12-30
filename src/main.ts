@@ -6,12 +6,12 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true })); // all middlewares should be always before app.listen
   app.setGlobalPrefix('api');
-  await app.listen(configService.get('port'));
-  await app.enableShutdownHooks();
   app.use(cookieParser());
+  await app.enableShutdownHooks();
+  const configService = app.get(ConfigService);
+  await app.listen(configService.get('port'));
   //await app.listen(3000);
 }
 bootstrap();

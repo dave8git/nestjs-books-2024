@@ -4,21 +4,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class BooksService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
 
-  // public getAll(): Promise<Book[]> {
-  //   return this.prismaService.book.findMany();
-  // }
-  public async getAll(): Promise<User[]> {
-    return this.prismaService.user.findMany({
-      include: {
-        books: {
-          include: {
-            book: true,
-          },
-        },
-      },
-    });
+  public getAll(): Promise<Book[]> {
+    return this.prismaService.book.findMany();
   }
 
   public getById(id: Book['id']): Promise<Book | null> {
@@ -45,7 +34,7 @@ export class BooksService {
         throw new ConflictException('Title is already taken');
       throw error;
     }
-}
+  }
   public async updateById(
     id: Book['id'],
     BookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>,
@@ -70,17 +59,23 @@ export class BooksService {
 
   public async likedBook(likeBookData: Omit<UserOnBooks, 'id'>): Promise<Book> {
     const { userId, bookId } = likeBookData;
-    return await this.prismaService.book.update({
-      where: { id: bookId },
-      data: {
-        users: {
-          create: {
-            user: {
-              connect: { id: userId },
+    try {
+      return await this.prismaService.book.update({ // return must be in try and catch will throw error
+        where: { id: bookId },
+        data: {
+          users: {
+            create: {
+              user: {
+                connect: { id: userId },
+              },
             },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (error.code === 'P2002')
+        throw new ConflictException(`Book with this ${bookId} doesn't exist in your database`);
+      throw error;
+    }
   }
 }
